@@ -1,4 +1,6 @@
-" Basic Settings
+""""""""""""""""""""
+"  Basic Settings  "
+""""""""""""""""""""
 
 set nocompatible
 
@@ -28,7 +30,7 @@ set showmatch              " Jump to matches
 set timeoutlen=500
 set ttimeoutlen=50
 set history=10000          " default by neovim
-set undofile
+set undofile               " keep undo history cross multi files
 
 " cursor on iterm2 and tmux
 if exists('$TMUX')
@@ -61,13 +63,6 @@ set wildmode=longest,list
 " remove trailing spaces on save
 autocmd BufWritePre * :%s/\s\+$//e
 
-" Remember folding
-augroup remember_folds
-  autocmd!
-  autocmd BufWinLeave ?* mkview
-  autocmd BufWinEnter ?* silent! loadview
-augroup END
-
 " Vim ONLY
 
 if !has('nvim')
@@ -81,6 +76,9 @@ if has('nvim')
     tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
 endif
 
+""""""""""""""""""""
+"     Plugins      "
+""""""""""""""""""""
 " Plugins
 
 " Specify a directory for plugins
@@ -95,10 +93,6 @@ Plug 'altercation/vim-colors-solarized'
 " airline
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-
-" coc
-Plug 'neoclide/coc.nvim', {'do': './install.sh nightly'}
-Plug 'honza/vim-snippets'
 
 " nerdtree
 Plug 'scrooloose/nerdtree'
@@ -118,33 +112,50 @@ Plug 'liuchengxu/vim-which-key'
 " easymotion
 Plug 'easymotion/vim-easymotion'
 
+" nord theme
+Plug 'arcticicestudio/nord-vim'
+
+" fzf
+Plug '/usr/local/opt/fzf'
+Plug 'junegunn/fzf.vim'
+
+" coc
+Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
+
+" auto pairs
+Plug 'jiangmiao/auto-pairs'
+
 " Initialize plugin system
 call plug#end()
 
-" UI
+""""""""""""""""""""
+"        UI        "
+""""""""""""""""""""
 
-set background=light
-colorscheme solarized
+set background=dark
+colorscheme nord
 
-let g:airline_theme='solarized'
-let g:airline_solarized_bg='light'
+" solarized airline_theme
+" let g:airline_theme='solarized'
+" let g:airline_solarized_bg='light'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 
-" Leader Key
+
+""""""""""""""""""""
+"   Leader Key     "
+""""""""""""""""""""
 
 let mapleader = " "
-
-" Split fast
-nnoremap <leader>\ :vs<cr> "error
-nnoremap <leader>- :sp<cr>
 
 " others
 nnoremap <silent> <leader>/ :nohl<cr><c-l>
 nnoremap <silent> <leader>* :%s/<c-r><c-w>//g<left><left>
 "
 
-" Key Mappings
+""""""""""""""""""""
+"   Key Mappings   "
+""""""""""""""""""""
 
 " Format jump
 nnoremap <silent> g; g;zz
@@ -164,6 +175,16 @@ nnoremap # #zzzv
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
+" In normal mode, we use : much more often than ; so lets swap them.
+" WARNING: this will cause any "ordinary" map command without the "nore" prefix
+" that uses ":" to fail. For instance, "map <f2> :w" would fail, since vim will
+" read ":w" as ";w" because of the below remappings. Use "noremap"s in such
+" situations and you'll be fine.
+nnoremap ; :
+nnoremap : ;
+vnoremap ; :
+vnoremap : ;
+
 " This makes j and k work on "screen lines" instead of on "file lines"; now, when
 " we have a long line that wraps to multiple screen lines, j and k behave as we
 " expect them to.
@@ -176,29 +197,79 @@ nmap ˚ mz:m-2<cr>`z
 vmap ∆ :m'>+<cr>`<my`>mzgv`yo`z
 vmap ˚ :m'<-2<cr>`>my`<mzgv`yo`z
 
-" Coc Settings
 
-" coc.nvim
+""""""""""""""""""""
+" Plugins Settings "
+""""""""""""""""""""
+
+" NerdTree
+
+nnoremap <silent><leader>nt :<c-u>NERDTreeToggle<CR>
+
+" make sure not open files and other buffers on NerdTree window.
+" If previous buffer was NERDTree, go back to it.
+autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" | b# | endif
+
+" ale
+
+" lint after 1000ms after changes are made both on insert mode and normal mode
+let g:ale_lint_on_text_changed = 'always'
+let g:ale_lint_delay = 1000
+
+" use nice symbols for errors and warnings
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '⚠'
+
+let g:ale_sign_column_always = 1
+highlight clear SignColumn
+let g:airline#extensions#ale#enabled = 1
+
+
+
+" Easymotion
+
+let g:EasyMotion_do_mapping = 0 " Disable default mappings
+
+" Jump to anywhere you want with minimal keystrokes, with just one key binding.
+" `s{char}{label}`
+nmap s <Plug>(easymotion-overwin-f)
+" or
+" `s{char}{char}{label}`
+" Need one more keystroke, but on average, it may be more comfortable.
+nmap s <Plug>(easymotion-overwin-f2)
+
+" Turn on case-insensitive feature
+let g:EasyMotion_smartcase = 1
+
+" JK motions: Line motions
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
+
+" fzf
+nnoremap <silent> <leader>zf :Files<cr>
+nnoremap <silent> <leader>zb :Buffers<cr>
+nnoremap <silent> <leader>zC :Colors<cr>
+nnoremap <silent> <leader>zt :Tags<cr>
+nnoremap <silent> <leader>zm :Marks<cr>
+nnoremap <silent> <leader>zh :History<cr>
+nnoremap <silent> <leader>z: :History:<cr>
+nnoremap <silent> <leader>z/ :History/<cr>
+nnoremap <silent> <leader>zs :Snippets<cr>
+nnoremap <silent> <leader>zc :Commands<cr>
+
+" coc
+
+" if hidden is not set, TextEdit might fail.
+set hidden
 
 " Some servers have issues with backup files, see #649
 set nobackup
 set nowritebackup
-" set noswapfile
-
-" Better display for messages
-" set cmdheight=2
-
 " Smaller updatetime for CursorHold & CursorHoldI
-set updatetime=100
+set updatetime=300
 
 " don't give |ins-completion-menu| messages.
 set shortmess+=c
-
-" always show signcolumns
-" set signcolumn=no
-
-" show diagnostics info on statusline
-set statusline^=%{coc#status()}
 
 " Use tab for trigger completion with characters ahead and navigate.
 " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
@@ -213,134 +284,8 @@ function! s:check_back_space() abort
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
-" Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
+nnoremap <silent> <space>cl  :<C-u>CocList<cr>
 
-" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
-" Coc only does snippet and additional edit on confirm.
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-
-" Use `[c` and `]c` to navigate diagnostics
-nmap <silent> [c <Plug>(coc-diagnostic-prev)
-nmap <silent> ]c <Plug>(coc-diagnostic-next)
-
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
-
-" Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Remap for rename current word
-nmap <leader>crn <Plug>(coc-rename)
-
-" Remap for format selected region
-xmap <leader>cf  <Plug>(coc-format-selected)
-nmap <leader>cf  <Plug>(coc-format-selected)
-
-augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
-
-" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-xmap <leader>ca  <Plug>(coc-codeaction-selected)
-nmap <leader>ca  <Plug>(coc-codeaction-selected)
-
-" Remap for do codeAction of current line
-nmap <leader>cac  <Plug>(coc-codeaction)
-" Fix autofix problem of current line
-nmap <leader>cqf  <Plug>(coc-fix-current)
-
-" Use `:Format` to format current buffer
-command! -nargs=0 Format :call CocAction('format')
-
-" Use `:Fold` to fold current buffer
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-
-" Add diagnostic info for https://github.com/itchyny/lightline.vim
-" let g:lightline = {
-"       \ 'colorscheme': 'wombat',
-"       \ 'active': {
-"       \   'left': [ [ 'mode', 'paste' ],
-"       \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-"       \ },
-"       \ 'component_function': {
-"       \   'cocstatus': 'coc#status'
-"       \ },
-"       \ }
-
-" Using CocList
-
-" Show CocList
-nnoremap <silent> <leader>cl :CocList<cr>
-" Show all diagnostics
-nnoremap <silent> <leader>cA  :<C-u>CocList diagnostics<cr>
-" Manage extensions
-nnoremap <silent> <leader>ce  :<C-u>CocList extensions<cr>
-" Show commands
-nnoremap <silent> <leader>cc  :<C-u>CocList commands<cr>
-" Find symbol of current document
-nnoremap <silent> <leader>co  :<C-u>CocList outline<cr>
-" Search workspace symbols
-nnoremap <silent> <leader>cs  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent> <leader>cj  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent> <leader>ck  :<C-u>CocPrev<CR>
-" Resume latest coc list
-nnoremap <silent> <leader>cp  :<C-u>CocListResume<CR>
-" coc-yank
-nnoremap <silent> <leader>cy  :<C-u>CocList --normal yank<cr>
-
-" coc-snippets
-
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() :
-                                           \"\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-let g:coc_snippet_next = '<TAB>'
-
-let g:coc_snippet_prev = '<S-TAB>'
-
-" others
-
-" if you want to disable auto detect, comment out those two lines
-" let g:airline#extensions#disable_rtp_load = 1
-" let g:airline_extensions = ['branch', 'hunks', 'coc']
-
-let g:airline_section_error = '%{airline#util#wrap(airline#extensions#coc#get_error(),0)}'
-let g:airline_section_warning = '%{airline#util#wrap(airline#extensions#coc#get_warning(),0)}'
-
-" NerdTree
-
-map <leader>nt :NERDTreeToggle<CR>
-
-" make sure not open files and other buffers on NerdTree window.
-" If previous buffer was NERDTree, go back to it.
-autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" | b# | endif
-
-" ale
-
-let g:ale_sign_column_always = 1
-highlight clear SignColumn
-let g:airline#extensions#ale#enabled = 1
 
 " Which key
 
@@ -389,7 +334,6 @@ let g:which_key_map[' '] = {
 
 let g:which_key_map.b = {
       \ 'name' : '+buffer' ,
-      \ 'd' : ['bd'        , 'delete-buffer']   ,
       \ 'f' : ['bfirst'    , 'first-buffer']    ,
       \ 'h' : ['Startify'  , 'home-buffer']     ,
       \ 'l' : ['blast'     , 'last-buffer']     ,
@@ -397,11 +341,19 @@ let g:which_key_map.b = {
       \ 'p' : ['bprevious' , 'previous-buffer'] ,
       \ }
 
-" coc group
+nnoremap <silent> <leader>bd :bd!<cr>
+let g:which_key_map.b.d = 'delete-buffer'
 
-let g:which_key_map.c = {
-      \ 'name' : '+coc',
+" window group
+
+let g:which_key_map.w = {
+      \ 'name' : '+window' ,
+      \ 's' : ['split'     , 'split'],
+      \ 'v' : ['vsplit'    , 'vsplit'],
       \ }
+
+nnoremap <silent> <leader>wt :terminal<cr>
+let g:which_key_map.w.t = 'terminal'
 
 " file group
 nnoremap <silent> <leader>fs :update<CR>
@@ -423,22 +375,6 @@ let g:which_key_map.n = {
       \ 'name' : '+nerdtree',
       \ }
 
+" fzf group
 
-" Easymotion
-
-let g:EasyMotion_do_mapping = 0 " Disable default mappings
-
-" Jump to anywhere you want with minimal keystrokes, with just one key binding.
-" `s{char}{label}`
-nmap s <Plug>(easymotion-overwin-f)
-" or
-" `s{char}{char}{label}`
-" Need one more keystroke, but on average, it may be more comfortable.
-nmap s <Plug>(easymotion-overwin-f2)
-
-" Turn on case-insensitive feature
-let g:EasyMotion_smartcase = 1
-
-" JK motions: Line motions
-map <Leader>j <Plug>(easymotion-j)
-map <Leader>k <Plug>(easymotion-k)
+let g:which_key_map.z = { 'name' : '+fzf' }
