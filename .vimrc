@@ -115,10 +115,6 @@ Plug 'easymotion/vim-easymotion'
 " nord theme
 Plug 'arcticicestudio/nord-vim'
 
-" fzf
-Plug '/usr/local/opt/fzf'
-Plug 'junegunn/fzf.vim'
-
 " coc
 Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
 
@@ -132,6 +128,9 @@ call plug#end()
 "        UI        "
 """"""""""""""""""""
 
+" nord settings need put before colorscheme
+let g:nord_italic = 1
+let g:nord_italic_comments = 1
 set background=dark
 colorscheme nord
 
@@ -180,6 +179,7 @@ nnoremap N Nzzzv
 " that uses ":" to fail. For instance, "map <f2> :w" would fail, since vim will
 " read ":w" as ";w" because of the below remappings. Use "noremap"s in such
 " situations and you'll be fine.
+" this will cause neovim not display command mode when press :
 nnoremap ; :
 nnoremap : ;
 vnoremap ; :
@@ -192,10 +192,12 @@ nnoremap j gj
 nnoremap k gk
 
 " Move a line of text using ALT+[jk] osx only
-nmap ∆ mz:m+<cr>`z
-nmap ˚ mz:m-2<cr>`z
-vmap ∆ :m'>+<cr>`<my`>mzgv`yo`z
-vmap ˚ :m'<-2<cr>`>my`<mzgv`yo`z
+" <alt-j> : ∆    <alt-k> : ˚
+" work before but not work now, don't know why
+" nmap ∆ mz:m+<cr>`z
+" nmap ˚ mz:m-2<cr>`z
+" vmap ∆ :m'>+<cr>`<my`>mzgv`yo`z
+" vmap ˚ :m'<-2<cr>`>my`<mzgv`yo`z
 
 
 """"""""""""""""""""
@@ -245,18 +247,6 @@ let g:EasyMotion_smartcase = 1
 map <Leader>j <Plug>(easymotion-j)
 map <Leader>k <Plug>(easymotion-k)
 
-" fzf
-nnoremap <silent> <leader>zf :Files<cr>
-nnoremap <silent> <leader>zb :Buffers<cr>
-nnoremap <silent> <leader>zC :Colors<cr>
-nnoremap <silent> <leader>zt :Tags<cr>
-nnoremap <silent> <leader>zm :Marks<cr>
-nnoremap <silent> <leader>zh :History<cr>
-nnoremap <silent> <leader>z: :History:<cr>
-nnoremap <silent> <leader>z/ :History/<cr>
-nnoremap <silent> <leader>zs :Snippets<cr>
-nnoremap <silent> <leader>zc :Commands<cr>
-
 " coc
 
 " if hidden is not set, TextEdit might fail.
@@ -286,6 +276,10 @@ endfunction
 
 nnoremap <silent> <space>cl  :<C-u>CocList<cr>
 
+" use <c-j> and <c-k> instead
+" let g:coc_snippet_next = '<tab>'
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() :
+                                           \"\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " Which key
 
@@ -344,6 +338,8 @@ let g:which_key_map.b = {
 nnoremap <silent> <leader>bd :bd!<cr>
 let g:which_key_map.b.d = 'delete-buffer'
 
+
+
 " window group
 
 let g:which_key_map.w = {
@@ -352,7 +348,7 @@ let g:which_key_map.w = {
       \ 'v' : ['vsplit'    , 'vsplit'],
       \ }
 
-nnoremap <silent> <leader>wt :terminal<cr>
+nnoremap <silent> <leader>wt :split <bar> terminal<cr>
 let g:which_key_map.w.t = 'terminal'
 
 " file group
@@ -375,6 +371,3 @@ let g:which_key_map.n = {
       \ 'name' : '+nerdtree',
       \ }
 
-" fzf group
-
-let g:which_key_map.z = { 'name' : '+fzf' }
