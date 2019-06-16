@@ -1,0 +1,103 @@
+{
+  // editor
+  "editor.fontFamily": "Operator Mono SSm Lig, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontSize": 26,
+  "editor.acceptSuggestionOnEnter": "smart",
+  "editor.tabCompletion": "on",
+  "editor.wordWrap": "on",
+  "editor.tabSize": 2,
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.formatOnSave": true,
+  "editor.fontLigatures": true,
+
+  // files
+  "files.autoSave": "afterDelay",
+  "files.exclude": {
+    "**/node_modules": true
+  },
+
+  // workbench
+  "workbench.colorTheme": "Noctis Lux",
+  "workbench.iconTheme": "vscode-icons",
+
+  // terminal
+  "terminal.external.osxExec": "iTerm.app",
+  "terminal.integrated.fontFamily": "Fira Mono for Powerline",
+  "terminal.integrated.fontSize": 26,
+
+  // vim
+  "vim.incsearch": true,
+  "vim.hlsearch": true,
+  "vim.leader": "<space>",
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": ["<leader>", "/"],
+      "commands": [":nohl"]
+    },
+    {
+      "before": ["g", ";"],
+      "after": ["g", ";", "z", "z"]
+    },
+    {
+      "before": ["g", ","],
+      "after": ["g", ",", "z", "z"]
+    },
+    {
+      "before": ["'"],
+      "after": ["`"]
+    },
+    {
+      "before": ["`"],
+      "after": ["'"]
+    },
+    {
+      "before": ["*"],
+      "after": ["*", "z", "z", "z", "v"]
+    },
+    {
+      "before": ["#"],
+      "after": ["#", "z", "z", "z", "v"]
+    },
+    {
+      "before": ["n"],
+      "after": ["n", "z", "z", "z", "v"]
+    },
+    {
+      "before": ["N"],
+      "after": ["N", "z", "z", "z", "v"]
+    },
+    {
+      "before": [";"],
+      "after": [":"]
+    },
+    {
+      "before": [":"],
+      "after": [";"]
+    },
+    {
+      "before": ["j"],
+      "after": ["g", "j"]
+    },
+    {
+      "before": ["k"],
+      "after": ["g", "k"]
+    }
+  ],
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": [";"],
+      "after": [":"]
+    },
+    {
+      "before": [":"],
+      "after": [";"]
+    }
+  ],
+
+  // web programming
+  "emmet.triggerExpansionOnTab": true,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "prettier.singleQuote": true,
+}
