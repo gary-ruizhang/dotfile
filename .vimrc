@@ -6,6 +6,7 @@ set nocompatible
 
 filetype plugin indent on  " Load plugins according to detected filetype.
 syntax on                  " Enable syntax highlighting.
+set mouse=a
 
 set autoread               " set auto read when file changed outside
 set autoindent             " Indent according to previous line.
@@ -100,11 +101,11 @@ Plug 'scrooloose/nerdtree'
 " vim surround
 Plug 'tpope/vim-surround'
 
-" vim commentary
-Plug 'tpope/vim-commentary'
-
 " ale
 Plug 'w0rp/ale'
+
+" vim commentary
+Plug 'tpope/vim-commentary'
 
 " which key
 Plug 'liuchengxu/vim-which-key'
@@ -117,9 +118,6 @@ Plug 'arcticicestudio/nord-vim'
 
 " coc
 Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
-
-" auto pairs
-Plug 'jiangmiao/auto-pairs'
 
 " Initialize plugin system
 call plug#end()
@@ -249,9 +247,6 @@ map <Leader>k <Plug>(easymotion-k)
 
 " coc
 
-" if hidden is not set, TextEdit might fail.
-set hidden
-
 " Some servers have issues with backup files, see #649
 set nobackup
 set nowritebackup
@@ -281,6 +276,9 @@ nnoremap <silent> <space>cl  :<C-u>CocList<cr>
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() :
                                            \"\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
+" integrate coc with airline
+let g:airline#extensions#coc#enabled = 1
+
 " Which key
 
 " prefix settings
@@ -294,6 +292,7 @@ vnoremap <silent> <leader> :<c-u>WhichKeyVisual '<Space>'<CR>
 autocmd! FileType which_key
 autocmd  FileType which_key set laststatus=0 noshowmode noruler
   \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+let g:which_key_use_floating_win = 0
 
 " Define prefix dictionary
 let g:which_key_map =  {}
