@@ -30,17 +30,22 @@ set showmatch              " Jump to matches
 
 set timeoutlen=500
 set ttimeoutlen=50
+set updatetime=100
 set history=10000          " default by neovim
 set undofile               " keep undo history cross multi files
+set pyxversion=3
 
+set completeopt-=preview   " disable sratch preview buffer
+
+" seems like don't need this
 " cursor on iterm2 and tmux
-if exists('$TMUX')
-  let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-  let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
-else
-  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-endif
+" if exists('$TMUX')
+"   let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+"   let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+" else
+"   let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+"   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+" endif
 
 set incsearch              " Highlight while searching with / or ?.
 set hlsearch               " Keep matches highlighted.
@@ -61,6 +66,13 @@ set wildmenu
 set wildmode=longest,list
 " set wildmode=full
 
+" open file at last position when you close
+" remap g' to g`, cause I switch this two keys
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+    \| exe "normal! g`\"" | endif
+endif
+
 " remove trailing spaces on save
 autocmd BufWritePre * :%s/\s\+$//e
 
@@ -80,7 +92,6 @@ endif
 """"""""""""""""""""
 "     Plugins      "
 """"""""""""""""""""
-" Plugins
 
 " Specify a directory for plugins
 " - Avoid using standard Vim directory names like 'plugin'
@@ -88,12 +99,8 @@ call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
 
-" solarized theme
-Plug 'altercation/vim-colors-solarized'
-
 " airline
 Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
 
 " nerdtree
 Plug 'scrooloose/nerdtree'
@@ -113,11 +120,30 @@ Plug 'liuchengxu/vim-which-key'
 " easymotion
 Plug 'easymotion/vim-easymotion'
 
-" nord theme
+" " nord theme
 Plug 'arcticicestudio/nord-vim'
 
-" coc
-Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
+" fzf-vim
+Plug '/usr/local/opt/fzf'
+Plug 'junegunn/fzf.vim'
+
+" git
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
+
+" deoplete just for neovim
+if has('nvim')
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    let g:deoplete#enable_at_startup = 1
+endif
+
+
+" vim-go
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+" print document in echo area
+Plug 'Shougo/echodoc.vim'
+
 
 " Initialize plugin system
 call plug#end()
@@ -129,20 +155,26 @@ call plug#end()
 " nord settings need put before colorscheme
 let g:nord_italic = 1
 let g:nord_italic_comments = 1
+" light theme need install airline-theme
 set background=dark
 colorscheme nord
 
-" solarized airline_theme
-" let g:airline_theme='solarized'
-" let g:airline_solarized_bg='light'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#formatter = 'unique_tail'
+" airline config
+let g:airline_powerline_fonts = 1
 
+" airline extensions
+" let g:airline#extensions#tabline#enabled = 1
+let g:airline_extensions = ['branch', 'tabline']
+let g:airline#extensions#default#section_truncate_width = {'a': 5, 'b': 5, 'x': 5, 'y': 5, 'z': 5, 'warning': 80, 'error': 80 }
+
+" ext config
+" let g:airline#extensions#tabline#formatter = 'unique_tail'
 
 """"""""""""""""""""
 "   Leader Key     "
 """"""""""""""""""""
 
+" <space>
 let mapleader = " "
 
 " others
@@ -189,9 +221,35 @@ vnoremap : ;
 nnoremap j gj
 nnoremap k gk
 
+" autoclose
+inoremap " ""<left>
+inoremap ' ''<left>
+inoremap ` ``<left>
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { {}<left>
+inoremap '' ''
+inoremap `` ``
+inoremap "" ""
+inoremap () ()
+inoremap [] []
+inoremap {} {}
+inoremap ) <right>
+inoremap ] <right>
+inoremap } <right>
+inoremap )) )
+inoremap ]] ]
+inoremap }} }
+inoremap '<CR> '<CR>'<ESC>O
+inoremap `<CR> `<CR>`<ESC>O
+inoremap "<CR> "<CR>"<ESC>O
+inoremap (<CR> (<CR>)<ESC>O
+inoremap [<CR> [<CR>]<ESC>O
+inoremap {<CR> {<CR>}<ESC>O
+
+
 " Move a line of text using ALT+[jk] osx only
 " <alt-j> : ∆    <alt-k> : ˚
-" work before but not work now, don't know why
 " nmap ∆ mz:m+<cr>`z
 " nmap ˚ mz:m-2<cr>`z
 " vmap ∆ :m'>+<cr>`<my`>mzgv`yo`z
@@ -208,7 +266,7 @@ nnoremap <silent><leader>nt :<c-u>NERDTreeToggle<CR>
 
 " make sure not open files and other buffers on NerdTree window.
 " If previous buffer was NERDTree, go back to it.
-autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" | b# | endif
+"autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" | b# | endif
 
 " ale
 
@@ -222,7 +280,6 @@ let g:ale_sign_warning = '⚠'
 
 let g:ale_sign_column_always = 1
 highlight clear SignColumn
-let g:airline#extensions#ale#enabled = 1
 
 
 
@@ -245,39 +302,44 @@ let g:EasyMotion_smartcase = 1
 map <Leader>j <Plug>(easymotion-j)
 map <Leader>k <Plug>(easymotion-k)
 
-" coc
+" fzf
+nnoremap <silent> <leader>zf :Files<cr>
+nnoremap <silent> <leader>zb :Buffers<cr>
+nnoremap <silent> <leader>zC :Colors<cr>
+nnoremap <silent> <leader>zt :Tags<cr>
+nnoremap <silent> <leader>zm :Marks<cr>
+nnoremap <silent> <leader>zh :History<cr>
+nnoremap <silent> <leader>z: :History:<cr>
+nnoremap <silent> <leader>z/ :History/<cr>
+nnoremap <silent> <leader>zs :Snippets<cr>
+nnoremap <silent> <leader>zc :Commands<cr>
 
-" Some servers have issues with backup files, see #649
-set nobackup
-set nowritebackup
-" Smaller updatetime for CursorHold & CursorHoldI
-set updatetime=300
+" completion
+"
 
-" don't give |ins-completion-menu| messages.
-set shortmess+=c
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
-" Use tab for trigger completion with characters ahead and navigate.
-" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+" golang
+" make deoplete work with vim-go
 
-nnoremap <silent> <space>cl  :<C-u>CocList<cr>
+if has('nvim')
+    call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
+endif
 
-" use <c-j> and <c-k> instead
-" let g:coc_snippet_next = '<tab>'
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() :
-                                           \"\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+" golang use tab instead spaces and default width is 8
+au FileType go set noexpandtab
+au FileType go set shiftwidth=8
+au FileType go set softtabstop=8
+au FileType go set tabstop=8
 
-" integrate coc with airline
-let g:airline#extensions#coc#enabled = 1
+" set bin path for vim-go
+let g:go_bin_path = $HOME."/go/bin"
+
+" echodoc
+let g:echodoc_enable_at_startup = 1
 
 " Which key
 
@@ -348,7 +410,10 @@ let g:which_key_map.w = {
       \ }
 
 nnoremap <silent> <leader>wt :split <bar> terminal<cr>
+nnoremap <silent> <leader>wz :pclose<cr>
+
 let g:which_key_map.w.t = 'terminal'
+let g:which_key_map.w.z = 'close preview'
 
 " file group
 nnoremap <silent> <leader>fs :update<CR>
@@ -370,3 +435,34 @@ let g:which_key_map.n = {
       \ 'name' : '+nerdtree',
       \ }
 
+" fzf group
+
+let g:which_key_map.z = { 'name' : '+fzf' }
+
+" hunk group (for gitgutter)
+
+let g:which_key_map.h = { 'name' : '+hunk (gitgutter)' }
+
+" git group (for fugitive)
+
+let g:which_key_map.g = { 'name' : '+git' }
+
+nnoremap <silent> <leader>gg :Git
+nnoremap <silent> <leader>gs :Gstatus<cr>
+" effective git add
+nnoremap <silent> <leader>gw :Gwrite<cr>
+nnoremap <silent> <leader>gl :Gpull
+nnoremap <silent> <leader>gh :Gpush<cr>
+nnoremap <silent> <leader>gf :Gfetch
+nnoremap <silent> <leader>gm :Gmerge
+nnoremap <silent> <leader>gc :Gcommit
+
+" run means run the command, others just send the command to the command mode
+let g:which_key_map.g.g = 'git <command>'
+let g:which_key_map.g.s = 'run git status'
+let g:which_key_map.g.w = 'run git add'
+let g:which_key_map.g.l = 'git pull'
+let g:which_key_map.g.h = 'run git push'
+let g:which_key_map.g.f = 'git fetch'
+let g:which_key_map.g.m = 'git merge'
+let g:which_key_map.g.c = 'git commit'
