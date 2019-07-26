@@ -16,6 +16,7 @@ set smarttab
 set softtabstop =4         " Tab key indents by 4 spaces.
 set shiftwidth  =4         " >> indents by 4 spaces.
 set shiftround             " >> indents to next multiple of 'shiftwidth'.
+set clipboard=unnamed
 
 set backspace   =indent,eol,start  " Make backspace work as you would expect.
 set hidden                 " Switch between buffers without having to save first.
@@ -121,8 +122,11 @@ Plug 'liuchengxu/vim-which-key'
 " easymotion
 Plug 'easymotion/vim-easymotion'
 
-" " nord theme
-Plug 'arcticicestudio/nord-vim'
+" better syntax highlighting support
+Plug 'sheerun/vim-polyglot'
+
+" forest theme
+Plug 'sainnhe/vim-color-forest-night'
 
 " fzf-vim
 Plug '/usr/local/opt/fzf'
@@ -135,16 +139,13 @@ Plug 'airblade/vim-gitgutter'
 " deoplete just for neovim
 if has('nvim')
     Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'SirVer/ultisnips'
     let g:deoplete#enable_at_startup = 1
 endif
 
 
 " vim-go
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-
-" print document in echo area
-Plug 'Shougo/echodoc.vim'
-
 
 " Initialize plugin system
 call plug#end()
@@ -153,15 +154,14 @@ call plug#end()
 "        UI        "
 """"""""""""""""""""
 
-" nord settings need put before colorscheme
-let g:nord_italic = 1
-let g:nord_italic_comments = 1
 " light theme need install airline-theme
 set background=dark
-colorscheme nord
+colorscheme forest-night
 
 " airline config
 let g:airline_powerline_fonts = 1
+
+let g:airline_theme = 'forest_night'
 
 " airline extensions
 " let g:airline#extensions#tabline#enabled = 1
@@ -314,6 +314,7 @@ nnoremap <silent> <leader>z: :History:<cr>
 nnoremap <silent> <leader>z/ :History/<cr>
 nnoremap <silent> <leader>zs :Snippets<cr>
 nnoremap <silent> <leader>zc :Commands<cr>
+nnoremap <silent> <leader>zr :Rg<space>
 
 " completion
 "
@@ -322,6 +323,16 @@ nnoremap <silent> <leader>zc :Commands<cr>
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
+" ultisnips
+" not conflict with completion tab
+let g:UltiSnipsExpandTrigger="<c-j>"
+" disable c-n and c-p before remap
+" can not be tab bc this can still trigger after type some words
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+" FIXME: backward not work, still not figure out why
+" let g:UltiSnipsJumpBackwardTrigger="<c-k>"
+
+let g:UltiSnipsSnippetDirectories=["$HOME/.vim/snippets"]
 
 " golang
 " make deoplete work with vim-go
@@ -329,6 +340,9 @@ inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<S-TAB>"
 if has('nvim')
     call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
 endif
+
+" better syntax highlighting
+let g:go_highlight_types = 1
 
 " golang use tab instead spaces and default width is 8
 au FileType go set noexpandtab
@@ -338,9 +352,6 @@ au FileType go set tabstop=8
 
 " set bin path for vim-go
 let g:go_bin_path = $HOME."/go/bin"
-
-" echodoc
-let g:echodoc_enable_at_startup = 1
 
 " Which key
 
@@ -440,6 +451,8 @@ let g:which_key_map.n = {
 
 let g:which_key_map.z = { 'name' : '+fzf' }
 
+let g:which_key_map.z.r = 'RipGrep'
+
 " hunk group (for gitgutter)
 
 let g:which_key_map.h = { 'name' : '+hunk (gitgutter)' }
@@ -467,3 +480,12 @@ let g:which_key_map.g.h = 'run git push'
 let g:which_key_map.g.f = 'git fetch'
 let g:which_key_map.g.m = 'git merge'
 let g:which_key_map.g.c = 'git commit'
+
+" vim-go grup
+
+let g:which_key_map.v = { 'name' : '+vim-go' }
+
+nnoremap <silent> <leader>vb :GoBuild<cr>
+nnoremap <silent> <leader>vr :GoRun<cr>
+nnoremap <silent> <leader>vi :GoImport<space>
+nnoremap <silent> <leader>vd :GoDrop<space>
