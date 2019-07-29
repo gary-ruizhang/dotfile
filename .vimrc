@@ -219,19 +219,20 @@ vnoremap : ;
 " This makes j and k work on "screen lines" instead of on "file lines"; now, when
 " we have a long line that wraps to multiple screen lines, j and k behave as we
 " expect them to.
-nnoremap j gj
-nnoremap k gk
+nnoremap <expr> k (v:count == 0 ? 'gk' : 'k')
+nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
 
-" autoclose
+" TODO: still need improve
+" autopairs
 inoremap " ""<left>
 inoremap ' ''<left>
 inoremap ` ``<left>
 inoremap ( ()<left>
 inoremap [ []<left>
 inoremap { {}<left>
+inoremap "" ""
 inoremap '' ''
 inoremap `` ``
-inoremap "" ""
 inoremap () ()
 inoremap [] []
 inoremap {} {}
@@ -241,9 +242,9 @@ inoremap } <right>
 inoremap )) )
 inoremap ]] ]
 inoremap }} }
+inoremap "<CR> "<CR>"<ESC>O
 inoremap '<CR> '<CR>'<ESC>O
 inoremap `<CR> `<CR>`<ESC>O
-inoremap "<CR> "<CR>"<ESC>O
 inoremap (<CR> (<CR>)<ESC>O
 inoremap [<CR> [<CR>]<ESC>O
 inoremap {<CR> {<CR>}<ESC>O
