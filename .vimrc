@@ -36,6 +36,7 @@ set updatetime=100
 set history=10000          " default by neovim
 set undofile               " keep undo history cross multi files
 set pyxversion=3
+set encoding=utf-8
 
 set completeopt-=preview   " disable sratch preview buffer
 
@@ -146,6 +147,9 @@ endif
 
 " vim-go
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+" python
+Plug 'deoplete-plugins/deoplete-jedi'
 
 " Initialize plugin system
 call plug#end()
@@ -353,6 +357,8 @@ au FileType go set tabstop=8
 
 " set bin path for vim-go
 let g:go_bin_path = $HOME."/go/bin"
+
+" python
 
 " Which key
 
