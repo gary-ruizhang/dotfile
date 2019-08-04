@@ -28,7 +28,6 @@ set history=10000
 set undofile
 set incsearch
 set hlsearch
-set cursorline
 set wrap
 set wrapscan
 
