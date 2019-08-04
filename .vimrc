@@ -16,7 +16,7 @@ set smarttab
 set softtabstop =4         " Tab key indents by 4 spaces.
 set shiftwidth  =4         " >> indents by 4 spaces.
 set shiftround             " >> indents to next multiple of 'shiftwidth'.
-set clipboard=unnamed
+" set clipboard=unnamed    " this will pollute system clipboard
 
 set backspace   =indent,eol,start  " Make backspace work as you would expect.
 set hidden                 " Switch between buffers without having to save first.
@@ -35,8 +35,9 @@ set ttimeoutlen=50
 set updatetime=100
 set history=10000          " default by neovim
 set undofile               " keep undo history cross multi files
-set pyxversion=3
+set pyxversion=3           " python version for pyx* function
 set encoding=utf-8
+set termguicolors
 
 set completeopt-=preview   " disable sratch preview buffer
 
