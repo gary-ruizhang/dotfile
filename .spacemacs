@@ -37,7 +37,9 @@ values."
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      ivy
-     auto-completion
+     (auto-completion :variables
+                      auto-completion-enable-sort-by-usage t
+                      )
      ;; better-defaults
      emacs-lisp
      git
@@ -260,7 +262,7 @@ values."
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
    ;; (default nil)
-   dotspacemacs-line-numbers 'relative
+   dotspacemacs-line-numbers 't
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -310,29 +312,52 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  ;;1. basic settings
+
+  ;;1.1 auto-completion
   ;; complete using tab only
   (company-tng-configure-default)
+
+  ;;1.2 file utils
 
   ;; delete trailing space on save
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-  ;; basic key mappings
+  ;; fuzzy match
+  (setq ivy-re-builders-alist
+        '((t . ivy--regex-fuzzy)))
+
+  ;;2. key mappings
+
+  ;;2.1 native key mappings
   (normal-erase-is-backspace-mode 1)
 
-  ;; evil key mappings
+  ;;2.2 evil key mappings
 
-  ;; insert mode
-  ;; TODO make them work for other situation
-  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char)
+  ;;2.2.1 insert mode
+  ;; TODO make below work for other situation
+
+  ;; make C-h work exactly the <Del> way, evil-delete-backward-char not work same when u inside a brackets
+  (define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
   (define-key evil-insert-state-map (kbd "C-w") 'evil-delete-backward-word)
   (define-key evil-insert-state-map (kbd "C-u")(lambda () (interactive) (evil-delete (point-at-bol) (point))))
 
-  ;; normal mode
+  ;;2.2.2 normal mode
+  ;; TODO some command need to remap in visual mode too, but feel like not use that much
   (define-key evil-normal-state-map (kbd ";") 'evil-ex)
   (define-key evil-normal-state-map (kbd ":") 'evil-repeat-find-char)
+  (define-key evil-normal-state-map (kbd "C-a") 'evil-numbers/inc-at-pt)
+  (define-key evil-normal-state-map (kbd "C-x") 'evil-numbers/dec-at-pt)
+  ;; use swiper replace evil-search
+  (define-key evil-normal-state-map (kbd "/") 'swiper)
+  (define-key evil-normal-state-map (kbd "*") 'spacemacs/swiper-region-or-symbol)
+  (define-key evil-normal-state-map (kbd "'") 'evil-goto-mark)
+  (define-key evil-normal-state-map (kbd "`") 'evil-goto-mark-line)
   ;; TODO add expression
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  ;; avy search 2 char, 2 char more efficient than 1 char
+  (define-key evil-normal-state-map (kbd "s") 'avy-goto-char-2)
 
   )
 
@@ -345,7 +370,7 @@ you should place your code here."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional cython-mode company-anaconda anaconda-mode pythonic mu4e-maildirs-extension mu4e-alert ht smeargle orgit org-category-capture alert log4e gntp magit-gitflow magit-popup gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link flyspell-correct-ivy flyspell-correct pos-tip flycheck evil-magit magit transient git-commit with-editor company yasnippet auto-complete wgrep smex ivy-hydra counsel-projectile counsel swiper ivy ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox org-projectile org-present org-pomodoro org-mime org-download org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot fuzzy flyspell-correct-helm flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu elisp-slime-nav dumb-jump diminish define-word company-statistics column-enforce-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
+    (unicode-escape names company-quickhelp company-tabnine yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional cython-mode company-anaconda anaconda-mode pythonic mu4e-maildirs-extension mu4e-alert ht smeargle orgit org-category-capture alert log4e gntp magit-gitflow magit-popup gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link flyspell-correct-ivy flyspell-correct pos-tip flycheck evil-magit magit transient git-commit with-editor company yasnippet auto-complete wgrep smex ivy-hydra counsel-projectile counsel swiper ivy ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox org-projectile org-present org-pomodoro org-mime org-download org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot fuzzy flyspell-correct-helm flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu elisp-slime-nav dumb-jump diminish define-word company-statistics column-enforce-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
