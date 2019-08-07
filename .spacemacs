@@ -49,6 +49,7 @@ values."
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
      (python :variables python-enable-yapf-format-on-save t)
+     ;; patching selectric in https://github.com/skeeto/selectric-mode to solve the conflict between evil and selectric
      selectric
      spell-checking
      syntax-checking
