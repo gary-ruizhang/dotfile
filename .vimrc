@@ -9,7 +9,8 @@ set autoindent
 set smartindent
 set expandtab
 set smarttab
-set softtabstop=4
+set tabstop=8
+set softtabstop=0
 set shiftwidth=4
 set shiftround
 set backspace=indent,eol,start
@@ -30,6 +31,12 @@ set wrap
 set wrapscan
 
 set viminfo='100,<1000,s100,h
+
+" set Pmenu color to be gray
+highlight Pmenu ctermbg=gray guibg=gray
+" set line number color to be gray
+highlight LineNr ctermfg=gray
+highlight CursorLineNr  ctermfg=gray
 
 let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 let &t_SR = "\<Esc>]50;CursorShape=2\x7"
