@@ -29,6 +29,7 @@ set incsearch
 set hlsearch
 set wrap
 set wrapscan
+set wildmode=longest:list,full
 
 set viminfo='100,<1000,s100,h
 
@@ -42,8 +43,15 @@ let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 let &t_SR = "\<Esc>]50;CursorShape=2\x7"
 let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 
-" remove trailing spaces on save
-autocmd BufWritePre * :%s/\s\+$//e
+" strip trailing whitespace and not jump the cursor on save
+function! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+
+autocmd BufWritePre * :call <SID>StripTrailingWhitespaces()
 
 " open file at last position when you close
 " remap g' to g`, cause I switch this two keys
@@ -70,6 +78,7 @@ vnoremap ; :
 vnoremap : ;
 nnoremap <expr> k (v:count == 0 ? 'gk' : 'k')
 nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
+nnoremap <C-o> <C-o>zz
 
 " Plugins
 call plug#begin('~/.vim/plugged')
