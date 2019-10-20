@@ -1,4 +1,5 @@
 " minimal-vimrc
+" don't put anything in here that you don't understand
 
 "" basic settings
 set nocompatible
@@ -79,9 +80,16 @@ vnoremap : ;
 nnoremap <expr> k (v:count == 0 ? 'gk' : 'k')
 nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
 nnoremap <C-o> <C-o>zz
+cnoremap f<enter> echo expand('%:p')<enter>
 
 " Plugins
 call plug#begin('~/.vim/plugged')
+
+Plug 'junegunn/vim-easy-align'
+
+Plug 'tpope/vim-surround'
+
+Plug 'tpope/vim-commentary'
 
 Plug 'zxqfl/tabnine-vim'
 
@@ -93,6 +101,8 @@ nmap s <Plug>(easymotion-overwin-f2)
 " Turn on case-insensitive feature
 let g:EasyMotion_smartcase = 1
 
+nmap ga <Plug>(EasyAlign)
+xmap ga <Plug>(EasyAlign)
+
 " Plug will override this config to turn syntax on, so put this line under
-" Plug
 syntax off
