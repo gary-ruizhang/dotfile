@@ -1,0 +1,18 @@
+let mapleader = " "
+
+set surround
+set commentary
+set incsearch              " Highlight while searching with / or ?.
+set hlsearch               " Keep matches highlighted.
+set visualbell
+set noerrorbells
+
+nnoremap <silent> <leader>/ :nohl<cr><c-l>
+nnoremap ; :
+nnoremap : ;
+vnoremap ; :
+vnoremap : ;
+nnoremap j gj
+nnoremap k gk
+
+nnoremap s :action AceAction<CR>
