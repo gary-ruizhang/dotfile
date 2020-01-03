@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block, everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 export TERM="xterm-256color"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -9,7 +16,7 @@ export GOPATH=$HOME/go
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="powerlevel9k/powerlevel9k"
+ZSH_THEME=powerlevel10k/powerlevel10k
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
 # cause zsh load theme from this variable instead of
@@ -98,22 +105,42 @@ source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 #  prompt_segment blue black '%2~'
 #}
 
-POWERLEVEL9K_SHORTEN_DIR_LENGTH=1 # shorten the prompt name for powerlevel9k theme
+# POWERLEVEL9K_SHORTEN_DIR_LENGTH=1 # shorten the prompt name for powerlevel9k theme
+
+# Settings
+unsetopt share_history
 
 
 PATH=/Users/zr/.local/bin:$PATH
 PATH=/Users/zr/.emacs.d/bin:$PATH
 PATH=$PATH:$GOPATH/bin
+PATH=$PATH:/usr/local/mysql/bin
+PATH=$PATH:/Users/zr/bin
 
 #==================
 #personal  settings
 #==================
 
+# use Java 8 at work.
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+
+export BAT_THEME="zenburn"
+
 export GIT_AUTHOR_NAME="Rui Zhang"
 export GIT_AUTHOR_EMAIL="gary.ruizhang@gmail.com"
 
+eval "$(lua ~/z.lua --init zsh enhanced once fzf)"
+# z.lua print the new directory after cd
+export _ZL_ECHO=1
+
+export EDITOR=vim
+
 # alias
 alias inflate='ruby -r zlib -e "STDOUT.write Zlib::Inflate.inflate(STDIN.read)"'
+
+alias lg='lazygit'
+
+alias vim='vim -o `fzf`'
 
 #==================
 #       END
@@ -127,7 +154,5 @@ if [ -f '/Users/zr/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/zr
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/zr/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/zr/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
 
-
-#initialize Z (https://github.com/rupa/z) 
-. ~/z.sh 
-
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

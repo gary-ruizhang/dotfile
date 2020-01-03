@@ -34,15 +34,30 @@ set wildmode=longest:list,full
 
 set viminfo='100,<1000,s100,h
 
+set autochdir
+set tags=./tags,tags;$HOME
+
+set t_Co=256
+
 " set Pmenu color to be gray
 highlight Pmenu ctermbg=gray guibg=gray
 " set line number color to be gray
 highlight LineNr ctermfg=gray
 highlight CursorLineNr  ctermfg=gray
 
-let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-let &t_SR = "\<Esc>]50;CursorShape=2\x7"
-let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+
+if exists('$TMUX')
+    " vim cursor shape with tmux
+    " back to normal mode will have delay on show not operation
+    let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+    let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+else
+    " vim cursor shape without tmux
+    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
 
 " strip trailing whitespace and not jump the cursor on save
 function! <SID>StripTrailingWhitespaces()
@@ -62,9 +77,15 @@ if has("autocmd")
 endif
 
 "" key mappings
+" leader key mappings
 let mapleader = " "
 
 nnoremap <silent> <leader>/ :nohl<cr><c-l>
+
+" save first, otherwise gofmt will delete unsaved changes
+nnoremap <silent> <leader>gf :w<cr> :%! gofmt .<cr> :w<cr>
+
+" key mappings
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 nnoremap ' `
@@ -80,7 +101,8 @@ vnoremap : ;
 nnoremap <expr> k (v:count == 0 ? 'gk' : 'k')
 nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
 nnoremap <C-o> <C-o>zz
-cnoremap f<enter> echo expand('%:p')<enter>
+" TODO: add check only work for single char 'f'
+" cnoremap f<enter> echo expand('%:p')<enter>
 
 " Plugins
 call plug#begin('~/.vim/plugged')
@@ -106,3 +128,8 @@ xmap ga <Plug>(EasyAlign)
 
 " Plug will override this config to turn syntax on, so put this line under
 syntax off
+
+" languages
+autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 expandtab
+autocmd FileType vue setlocal shiftwidth=2 softtabstop=2 expandtab
+autocmd FileType html setlocal shiftwidth=2 softtabstop=2 expandtab
