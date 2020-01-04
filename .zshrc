@@ -140,16 +140,19 @@ alias inflate='ruby -r zlib -e "STDOUT.write Zlib::Inflate.inflate(STDIN.read)"'
 
 alias lg='lazygit'
 
-function runvim() {
-    if [ $# -eq 0 ]
-    then
+# run 'vim -o `fzf`' if no filename provided
+# this function name has no chill
+function emacs() {
+    if [ $# -eq 0 ] ;then
         vim -o `fzf`
     else
         vim "$@"
     fi
 }
 
-alias vim=runvim
+alias vim=emacs
+
+alias ls=exa
 
 #==================
 #       END
