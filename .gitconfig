@@ -1,0 +1,9 @@
+[user]
+	name = Rui Zhang
+	email = gary.ruizhang@gmail.com
+[core]
+	editor = vim
+        ; pager = delta --plus-color="#012800" --minus-color="#340001" --theme="zenburn"
+	excludesfile = /Users/zr/.gitignore_global
+[alias]
+	graph = log --graph --oneline
