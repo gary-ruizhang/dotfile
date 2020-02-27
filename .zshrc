@@ -136,7 +136,7 @@ export _ZL_ECHO=1
 
 export EDITOR=vim
 
-export LESS="-XFR"
+export LESS="-XFRS"
 
 # alias
 alias inflate='ruby -r zlib -e "STDOUT.write Zlib::Inflate.inflate(STDIN.read)"'
