@@ -136,6 +136,8 @@ export _ZL_ECHO=1
 
 export EDITOR=vim
 
+export LESS="-XFR"
+
 # alias
 alias inflate='ruby -r zlib -e "STDOUT.write Zlib::Inflate.inflate(STDIN.read)"'
 
@@ -155,6 +157,8 @@ alias vim=emacs
 
 alias ls=exa
 
+# alias git to hub
+eval "$(hub alias -s)"
 
 n ()
 {
