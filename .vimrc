@@ -40,10 +40,10 @@ set tags=./tags,tags;$HOME
 set t_Co=256
 
 " set Pmenu color to be gray
-highlight Pmenu ctermbg=gray guibg=gray
+" highlight Pmenu ctermbg=gray guibg=gray
 " set line number color to be gray
-highlight LineNr ctermfg=gray
-highlight CursorLineNr  ctermfg=gray
+" highlight LineNr ctermfg=gray
+" highlight CursorLineNr  ctermfg=gray
 
 
 if exists('$TMUX')
@@ -117,6 +117,8 @@ Plug 'zxqfl/tabnine-vim'
 
 Plug 'easymotion/vim-easymotion'
 
+Plug 'arcticicestudio/nord-vim'
+
 call plug#end()
 
 nmap s <Plug>(easymotion-overwin-f2)
@@ -127,7 +129,8 @@ nmap ga <Plug>(EasyAlign)
 xmap ga <Plug>(EasyAlign)
 
 " Plug will override this config to turn syntax on, so put this line under
-syntax off
+" syntax off
+colorscheme nord
 
 " languages
 autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 expandtab
