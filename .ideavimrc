@@ -8,7 +8,6 @@ set incsearch              " Highlight while searching with / or ?.
 set hlsearch               " Keep matches highlighted.
 set visualbell
 set noerrorbells
-set clipboard+=unnamed
 
 nnoremap <leader>/ :nohl<cr><c-l>
 nnoremap g; g;zz
@@ -26,4 +25,5 @@ vnoremap : ;
 nnoremap j gj
 nnoremap k gk
 
-nnoremap s :action AceAction<CR>
+nnoremap gn :action GotoNextError<CR>
+nnoremap gp :action GotoPreviousError<CR>
