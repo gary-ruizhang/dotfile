@@ -31,6 +31,7 @@ set hlsearch
 set wrap
 set wrapscan
 set wildmode=longest:list,full
+set nrformats=
 
 set viminfo='100,<1000,s100,h
 
