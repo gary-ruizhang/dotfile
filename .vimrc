@@ -120,8 +120,6 @@ Plug 'easymotion/vim-easymotion'
 
 Plug 'arcticicestudio/nord-vim'
 
-Plug 'posva/vim-vue'
-
 call plug#end()
 
 nmap s <Plug>(easymotion-overwin-f2)
@@ -134,10 +132,3 @@ xmap ga <Plug>(EasyAlign)
 " Plug will override this config to turn syntax on, so put this line under
 " syntax off
 colorscheme nord
-
-let g:vue_pre_processors = ['sass']
-
-" languages
-autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 expandtab
-autocmd FileType vue setlocal shiftwidth=2 softtabstop=2 expandtab
-autocmd FileType html setlocal shiftwidth=2 softtabstop=2 expandtab

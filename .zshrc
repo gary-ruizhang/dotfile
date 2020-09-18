@@ -67,7 +67,8 @@ ZSH_THEME=powerlevel10k/powerlevel10k
 plugins=(
   git
   zsh-autosuggestions
-  zsh-completions
+  docker
+  docker-compose
 )
 plugins+=(zsh-nvm)
 
@@ -118,6 +119,7 @@ PATH=/Users/zr/.emacs.d/bin:$PATH
 PATH=$PATH:$GOPATH/bin
 PATH=$PATH:/usr/local/mysql/bin
 PATH=$PATH:/Users/zr/bin
+PATH=/Applications/Racket\ v7.8/bin:$PATH
 
 #==================
 #personal  settings
@@ -205,3 +207,4 @@ if [ -f '/Users/zr/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Us
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+source <(kubectl completion zsh)
