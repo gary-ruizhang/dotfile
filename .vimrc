@@ -96,12 +96,14 @@ nnoremap # #zzzv
 nnoremap n nzzzv
 nnoremap N Nzzzv
 nnoremap ; :
-nnoremap : ;
 vnoremap ; :
-vnoremap : ;
 nnoremap <expr> k (v:count == 0 ? 'gk' : 'k')
 nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
 nnoremap <C-o> <C-o>zz
+
+" Allow saving of files as sudo when I forgot to start vim using sudo.
+cmap w!! w !sudo tee > /dev/null %
+
 " TODO: add check only work for single char 'f'
 " cnoremap f<enter> echo expand('%:p')<enter>
 
@@ -114,20 +116,50 @@ Plug 'tpope/vim-surround'
 
 Plug 'tpope/vim-commentary'
 
-Plug 'zxqfl/tabnine-vim'
+Plug 'arcticicestudio/nord-vim'
 
 Plug 'easymotion/vim-easymotion'
 
-Plug 'arcticicestudio/nord-vim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
-nmap s <Plug>(easymotion-overwin-f2)
+"" easymotion
+let g:EasyMotion_do_mapping = 0 " Disable default mappings
+
+nmap s <Plug>(easymotion-s2)
+nmap t <Plug>(easymotion-t2)
+
 " Turn on case-insensitive feature
 let g:EasyMotion_smartcase = 1
 
+" JK motions: Line motions
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
+
+let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
+
+map  / <Plug>(easymotion-sn)
+omap / <Plug>(easymotion-tn)
+
+" These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
+" Without these mappings, `n` & `N` works fine. (These mappings just provide
+" different highlight method and have some other features )
+map  n <Plug>(easymotion-next)
+map  N <Plug>(easymotion-prev)
+
 nmap ga <Plug>(EasyAlign)
 xmap ga <Plug>(EasyAlign)
+
+"" completion
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 " Plug will override this config to turn syntax on, so put this line under
 " syntax off
