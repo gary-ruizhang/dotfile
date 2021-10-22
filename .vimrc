@@ -32,6 +32,11 @@ set wrap
 set wrapscan
 set wildmode=longest:list,full
 set nrformats=
+" set Vim-specific sequences for RGB colors | enable true colors
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+set termguicolors
+set cursorline
 
 set viminfo='100,<1000,s100,h
 
@@ -83,9 +88,6 @@ let mapleader = " "
 
 nnoremap <silent> <leader>/ :nohl<cr><c-l>
 
-" save first, otherwise gofmt will delete unsaved changes
-nnoremap <silent> <leader>gf :w<cr> :%! gofmt .<cr> :w<cr>
-
 " key mappings
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
@@ -102,7 +104,8 @@ nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
 nnoremap <C-o> <C-o>zz
 
 " Allow saving of files as sudo when I forgot to start vim using sudo.
-cmap w!! w !sudo tee > /dev/null %
+" TODO: not worked
+" cmap w!! w !sudo tee > /dev/null %
 
 " TODO: add check only work for single char 'f'
 " cnoremap f<enter> echo expand('%:p')<enter>
@@ -116,11 +119,17 @@ Plug 'tpope/vim-surround'
 
 Plug 'tpope/vim-commentary'
 
-Plug 'arcticicestudio/nord-vim'
-
 Plug 'easymotion/vim-easymotion'
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+Plug 'junegunn/fzf', {'dir': '~/.fzf','do': './install --all'}
+
+Plug 'junegunn/fzf.vim' " needed for previews
+
+Plug 'antoinemadec/coc-fzf'
+
+Plug 'arcticicestudio/nord-vim'
 
 call plug#end()
 
@@ -139,19 +148,32 @@ map <Leader>k <Plug>(easymotion-k)
 
 let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
 
-map  / <Plug>(easymotion-sn)
-omap / <Plug>(easymotion-tn)
+" map  / <Plug>(easymotion-sn)
+" omap / <Plug>(easymotion-tn)
 
 " These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
 " Without these mappings, `n` & `N` works fine. (These mappings just provide
 " different highlight method and have some other features )
-map  n <Plug>(easymotion-next)
-map  N <Plug>(easymotion-prev)
+" map  n <Plug>(easymotion-next)
+" map  N <Plug>(easymotion-prev)
 
+"" easyalign
 nmap ga <Plug>(EasyAlign)
 xmap ga <Plug>(EasyAlign)
 
-"" completion
+"" coc.nvim
+"
+" Set internal encoding of vim, not needed on neovim, since coc.nvim using some
+" unicode characters in the file autoload/float.vim
+set encoding=utf-8
+
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=300
+
+" Recently vim can merge signcolumn and number column into one
+set signcolumn=number
+
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
@@ -161,6 +183,18 @@ inoremap <silent><expr> <TAB>
       \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-" Plug will override this config to turn syntax on, so put this line under
-" syntax off
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" <C-f> complete snippets, tabnine suggestion is considered snippets.
+inoremap <silent><expr> <C-f> pumvisible() ? coc#_select_confirm() :
+                                           \"\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+nnoremap <silent> <space>f :<C-u>CocFzfList<CR>
+
+"" UI
 colorscheme nord
+let g:nord_italic = 1
+let g:nord_italic_comments = 1

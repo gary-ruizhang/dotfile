@@ -152,3 +152,8 @@ source /Users/ruizhang/.config/fzf-tab/fzf-tab.plugin.zsh
 
 # make zsh completion system work
 autoload -Uz compinit && compinit
+export PATH="/usr/local/opt/binutils/bin:$PATH"
+
+export TOOLPREFIX=x86_64-elf-
+export QEMU=qemu-system-i386
+[ -f "/Users/ruizhang/.ghcup/env" ] && source "/Users/ruizhang/.ghcup/env" # ghcup-env
