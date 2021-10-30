@@ -30,13 +30,15 @@ set incsearch
 set hlsearch
 set wrap
 set wrapscan
-set wildmode=longest:list,full
+set wildmenu
+set wildmode=full
 set nrformats=
 " set Vim-specific sequences for RGB colors | enable true colors
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 set termguicolors
 set cursorline
+set ruler
 
 set viminfo='100,<1000,s100,h
 
@@ -44,13 +46,6 @@ set autochdir
 set tags=./tags,tags;$HOME
 
 set t_Co=256
-
-" set Pmenu color to be gray
-" highlight Pmenu ctermbg=gray guibg=gray
-" set line number color to be gray
-" highlight LineNr ctermfg=gray
-" highlight CursorLineNr  ctermfg=gray
-
 
 if exists('$TMUX')
     " vim cursor shape with tmux
@@ -127,8 +122,6 @@ Plug 'junegunn/fzf', {'dir': '~/.fzf','do': './install --all'}
 
 Plug 'junegunn/fzf.vim' " needed for previews
 
-Plug 'antoinemadec/coc-fzf'
-
 Plug 'arcticicestudio/nord-vim'
 
 call plug#end()
@@ -167,10 +160,6 @@ xmap ga <Plug>(EasyAlign)
 " unicode characters in the file autoload/float.vim
 set encoding=utf-8
 
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=300
-
 " Recently vim can merge signcolumn and number column into one
 set signcolumn=number
 
@@ -192,9 +181,19 @@ endfunction
 inoremap <silent><expr> <C-f> pumvisible() ? coc#_select_confirm() :
                                            \"\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-nnoremap <silent> <space>f :<C-u>CocFzfList<CR>
+"" fzf.vim
+nnoremap <silent> <space>f :<C-u>Files<CR>
+nnoremap <silent> <space>gf :<C-u>GFiles<CR>
+nnoremap <silent> <space>gs :<C-u>GFiles?<CR>
+nnoremap <silent> <space>b :<C-u>Buffers<CR>
+nnoremap <silent> <space>l :<C-u>Lines<CR>
+nnoremap <silent> <space>t :<C-u>Tags<CR>
+nnoremap <silent> <space>; :<C-u>History:<CR>
+nnoremap <silent> <space>/ :<C-u>History/<CR>
+nnoremap <silent> <space>c :<C-u>Commands<CR>
 
 "" UI
-colorscheme nord
 let g:nord_italic = 1
 let g:nord_italic_comments = 1
+syntax enable
+colorscheme nord
