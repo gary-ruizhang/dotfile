@@ -61,14 +61,15 @@ else
 endif
 
 " strip trailing whitespace and not jump the cursor on save
-function! <SID>StripTrailingWhitespaces()
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    call cursor(l, c)
-endfun
+" TODO: this will remove some random lines and add again, git will see the diff
+" function! <SID>StripTrailingWhitespaces()
+"     let l = line(".")
+"     let c = col(".")
+"     %s/\s\+$//e
+"     call cursor(l, c)
+" endfun
 
-autocmd BufWritePre * :call <SID>StripTrailingWhitespaces()
+" autocmd BufWritePre * :call <SID>StripTrailingWhitespaces()
 
 " open file at last position when you close
 " remap g' to g`, cause I switch this two keys
@@ -81,7 +82,7 @@ endif
 " leader key mappings
 let mapleader = " "
 
-nnoremap <silent> <leader>/ :nohl<cr><c-l>
+nnoremap <silent> <C-l> :<C-u>nohl<CR><C-l>
 
 " key mappings
 nnoremap <silent> g; g;zz
@@ -185,6 +186,7 @@ inoremap <silent><expr> <C-f> pumvisible() ? coc#_select_confirm() :
 nnoremap <silent> <space>f :<C-u>Files<CR>
 nnoremap <silent> <space>gf :<C-u>GFiles<CR>
 nnoremap <silent> <space>gs :<C-u>GFiles?<CR>
+nnoremap <silent> <space>r :<C-u>Rg<CR>
 nnoremap <silent> <space>b :<C-u>Buffers<CR>
 nnoremap <silent> <space>l :<C-u>Lines<CR>
 nnoremap <silent> <space>t :<C-u>Tags<CR>
