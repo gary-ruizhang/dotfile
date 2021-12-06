@@ -8,12 +8,15 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^xe' edit-command-line
 bindkey '^x^e' edit-command-line
+bindkey -e
 
 # how zsh decide a word, useful /foo/bar ctrl-w /foo
 autoload -U select-word-style
 select-word-style bash
 
 export WORDCHARS='.-'
+
+export EDITOR=nvim
 
 ## Alias
 # alias ls to exa
@@ -28,19 +31,26 @@ eval "$(hub alias -s)"
 
 alias g=git
 
+alias vim=nvim
+
 ## Tools
 
 # HomeBrew
-export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+# export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
+# TODO put in directory not relate to user
+export PATH="/Users/ruizhang/nvim-osx64/bin/:$PATH"
 # HomeBrew END
-
-# z.lua
-eval "$(lua /Users/ruizhang/z.lua --init zsh)"
 
 ## fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+FD_OPTIONS="--follow --exclude .git --exclude node_modules"
+
+export FZF_DEFAULT_COMMAND="git ls-files --cached --others --exclude-standard | fd --type f --type l $FD_OPTIONS"
+export FZF_CTRL_T_COMMAND="fd $FD_OPTIONS"
+export FZF_ALT_C_COMMAND="fd --type d $FD_OPTIONS"
 
 export FZF_DEFAULT_OPTS='--height 40% --border --reverse'
 export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
@@ -142,7 +152,7 @@ source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 eval "$(starship init zsh)"
 
 # solve tmux term color
-export TERM=xterm-256color
+# export TERM=alacritty
 
 # highlight
 source /Users/ruizhang/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -157,3 +167,6 @@ export PATH="/usr/local/opt/binutils/bin:$PATH"
 export TOOLPREFIX=x86_64-elf-
 export QEMU=qemu-system-i386
 [ -f "/Users/ruizhang/.ghcup/env" ] && source "/Users/ruizhang/.ghcup/env" # ghcup-env
+
+# z
+eval "$(zoxide init zsh)"
