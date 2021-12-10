@@ -59,6 +59,9 @@ set signcolumn=number
 
 set t_Co=256
 
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+
 if exists('$TMUX')
     " vim cursor shape with tmux
     " back to normal mode will have delay on show not operation
@@ -144,17 +147,11 @@ Plug 'junegunn/fzf', {'dir': '~/.fzf','do': './install --all'}
 
 Plug 'junegunn/fzf.vim' " needed for previews
 
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
-
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 Plug 'antoinemadec/coc-fzf'
 
-" TODO fzf.vim and fzf-lua is duplicate but not conflicts, compare and remove one in the future
-Plug 'ibhagwan/fzf-lua'
-Plug 'vijaymarupudi/nvim-fzf'
-
-Plug 'mrjones2014/dash.nvim', { 'do': 'make install' }
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 
 Plug 'EdenEast/nightfox.nvim'
 
@@ -283,10 +280,25 @@ nnoremap <silent> <space>h :<C-u>Helptags<CR>
 nnoremap <silent> <space>e :<C-u>Filetypes<CR>
 " coc-fzf
 nnoremap <silent> <space><space> :<C-u>CocFzfList<CR>
-nnoremap <silent> <space>d :<C-u>FzfLua dash<CR>
 
 " adjust window size
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.9 } }
+" }}}
+
+" nvim-treesitter {{{
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+  },
+  incremental_selection = {
+    enable = true,
+  },
+  indent = {
+    enable = true
+  }
+}
+EOF
 " }}}
 
 " UI {{{
