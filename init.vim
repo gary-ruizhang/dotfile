@@ -52,6 +52,7 @@ set shortmess+=c
 " Set internal encoding of vim, not needed on neovim, since coc.nvim using some
 " unicode characters in the file autoload/float.vim
 set encoding=utf-8
+set fileencoding=utf-8
 
 " Recently vim can merge signcolumn and number column into one
 set signcolumn=number
@@ -137,6 +138,8 @@ Plug 'tpope/vim-commentary'
 
 Plug 'easymotion/vim-easymotion'
 
+Plug 'rhysd/clever-f.vim'
+
 Plug 'junegunn/fzf', {'dir': '~/.fzf','do': './install --all'}
 
 Plug 'junegunn/fzf.vim' " needed for previews
@@ -152,6 +155,8 @@ Plug 'ibhagwan/fzf-lua'
 Plug 'vijaymarupudi/nvim-fzf'
 
 Plug 'mrjones2014/dash.nvim', { 'do': 'make install' }
+
+Plug 'EdenEast/nightfox.nvim'
 
 Plug '~/.vim/plugged/dracula-pro'
 
@@ -292,5 +297,9 @@ syntax enable
 " colorscheme nord
 
 " let g:dracula_colorterm = 0
-colorscheme dracula_pro
+colorscheme nordfox
+" }}}
+
+" Others {{{
+let g:clever_f_smart_case = 1
 " }}}
