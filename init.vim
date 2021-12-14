@@ -59,9 +59,6 @@ set signcolumn=number
 
 set t_Co=256
 
-set foldmethod=expr
-set foldexpr=nvim_treesitter#foldexpr()
-
 if exists('$TMUX')
     " vim cursor shape with tmux
     " back to normal mode will have delay on show not operation
@@ -120,6 +117,14 @@ nnoremap <expr> k (v:count == 0 ? 'gk' : 'k')
 nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
 nnoremap <C-o> <C-o>zz
 nnoremap <C-i> <C-i>zz
+nnoremap Y y$
+nnoremap J mzJ`z
+
+" undo break point
+inoremap , ,<C-g>u
+inoremap . .<C-g>u
+inoremap ! !<C-g>u
+inoremap ? ?<C-g>u
 
 " Allow saving of files as sudo when I forgot to start vim using sudo.
 " TODO: not worked
@@ -143,15 +148,14 @@ Plug 'easymotion/vim-easymotion'
 
 Plug 'rhysd/clever-f.vim'
 
-Plug 'junegunn/fzf', {'dir': '~/.fzf','do': './install --all'}
-
-Plug 'junegunn/fzf.vim' " needed for previews
-
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-Plug 'antoinemadec/coc-fzf'
-
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'fannheyward/telescope-coc.nvim'
 
 Plug 'EdenEast/nightfox.nvim'
 
@@ -195,8 +199,26 @@ xmap ga <Plug>(EasyAlign)
 " lua {{{
 " TODO put in separate lua files
 lua << EOF
--- require'lspconfig'.clangd.setup{}
--- require'lspconfig'.gopls.setup{}
+local actions = require("telescope.actions")
+
+require("telescope").setup({
+    defaults = {
+		layout_config = {
+			horizontal = {
+				preview_cutoff = 0,
+			},
+		},
+        mappings = {
+            i = {
+                ["<esc>"] = actions.close,
+                ["<c-j>"] = actions.move_selection_next,
+                ["<c-k>"] = actions.move_selection_previous,
+            },
+        },
+    },
+})
+require('telescope').load_extension('fzf')
+require('telescope').load_extension('coc')
 EOF
 
 " }}}
@@ -262,27 +284,20 @@ autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.org
 
 " }}}
 
-" fzf {{{
-nnoremap <silent> <space>f :<C-u>Files<CR>
-nnoremap <silent> <space>gf :<C-u>GFiles<CR>
-nnoremap <silent> <space>gs :<C-u>GFiles?<CR>
-nnoremap <silent> <space>r :<C-u>Rg<CR>
-nnoremap <silent> <space>b :<C-u>Buffers<CR>
-nnoremap <silent> <space>l :<C-u>Lines<CR>
-nnoremap <silent> <space>t :<C-u>Tags<CR>
-nnoremap <silent> <space>m :<C-u>Marks<CR>
-nnoremap <silent> <space>w :<C-u>Windows<CR>
-nnoremap <silent> <space>; :<C-u>History:<CR>
-nnoremap <silent> <space>/ :<C-u>History/<CR>
-nnoremap <silent> <space>c :<C-u>Commands<CR>
-nnoremap <silent> <space>h :<C-u>Helptags<CR>
-" file extension
-nnoremap <silent> <space>e :<C-u>Filetypes<CR>
-" coc-fzf
-nnoremap <silent> <space><space> :<C-u>CocFzfList<CR>
+" telescope {{{
+nnoremap <silent> <space>f <cmd>Telescope find_files<CR>
+nnoremap <silent> <space>r <cmd>Telescope live_grep<CR>
+nnoremap <silent> <space>b <cmd>Telescope buffers<CR>
+nnoremap <silent> <space>; <cmd>Telescope command_history<CR>
+nnoremap <silent> <space>/ <cmd>Telescope search_history<CR>
+nnoremap <silent> <space>c <cmd>Telescope commands<CR>
+nnoremap <silent> <space>h <cmd>Telescope help_tags<CR>
+nnoremap <silent> <space>q <cmd>Telescope quickfix<CR>
+nnoremap <silent> <space>l <cmd>Telescope loclist<CR>
+nnoremap <silent> <space>j <cmd>Telescope jumplist<CR>
+" coc
+nnoremap <silent> <space><space> <cmd>Telescope builtin<CR>
 
-" adjust window size
-let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.9 } }
 " }}}
 
 " nvim-treesitter {{{
@@ -299,6 +314,9 @@ require'nvim-treesitter.configs'.setup {
   }
 }
 EOF
+
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
 " }}}
 
 " UI {{{
@@ -310,6 +328,7 @@ syntax enable
 
 " let g:dracula_colorterm = 0
 colorscheme nordfox
+highlight Comment gui=italic
 " }}}
 
 " Others {{{
