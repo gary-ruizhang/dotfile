@@ -49,15 +49,12 @@ set tags=./tags,tags;$HOME
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
-" Set internal encoding of vim, not needed on neovim, since coc.nvim using some
-" unicode characters in the file autoload/float.vim
-set encoding=utf-8
-set fileencoding=utf-8
-
 " Recently vim can merge signcolumn and number column into one
 set signcolumn=number
 
 set t_Co=256
+
+set completeopt=menu,menuone,noselect
 
 if exists('$TMUX')
     " vim cursor shape with tmux
@@ -144,50 +141,32 @@ Plug 'tpope/vim-surround'
 
 Plug 'tpope/vim-commentary'
 
-Plug 'easymotion/vim-easymotion'
+Plug 'phaazon/hop.nvim'
 
 Plug 'rhysd/clever-f.vim'
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 
+" telescope
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-Plug 'fannheyward/telescope-coc.nvim'
+Plug 'nvim-telescope/telescope-frecency.nvim'
 
 Plug 'EdenEast/nightfox.nvim'
 
-Plug '~/.vim/plugged/dracula-pro'
+" lsp and completion
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
+
+Plug 'tami5/sqlite.lua'
 
 call plug#end()
-
-" }}}
-
-" easymotion {{{
-let g:EasyMotion_do_mapping = 0 " Disable default mappings
-
-nmap s <Plug>(easymotion-s2)
-nmap t <Plug>(easymotion-t2)
-
-" Turn on case-insensitive feature
-let g:EasyMotion_smartcase = 1
-
-" JK motions: Line motions
-map <Leader>j <Plug>(easymotion-j)
-map <Leader>k <Plug>(easymotion-k)
-
-let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
-
-" map  / <Plug>(easymotion-sn)
-" omap / <Plug>(easymotion-tn)
-
-" These `n` & `N` mappings are options. You do not have to map `n` & `N` to EasyMotion.
-" Without these mappings, `n` & `N` works fine. (These mappings just provide
-" different highlight method and have some other features )
-" map  n <Plug>(easymotion-next)
-" map  N <Plug>(easymotion-prev)
 
 " }}}
 
@@ -198,6 +177,7 @@ xmap ga <Plug>(EasyAlign)
 
 " lua {{{
 " TODO put in separate lua files
+" telescope {{{
 lua << EOF
 local actions = require("telescope.actions")
 
@@ -213,74 +193,160 @@ require("telescope").setup({
                 ["<esc>"] = actions.close,
                 ["<c-j>"] = actions.move_selection_next,
                 ["<c-k>"] = actions.move_selection_previous,
+				["<C-w>"] = function()
+				  vim.cmd [[normal! bcw]]
+				end,
             },
         },
     },
 })
 require('telescope').load_extension('fzf')
-require('telescope').load_extension('coc')
+require('telescope').load_extension('frecency')
 EOF
-
 " }}}
 
-" coc.nvim {{{
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+" lsp {{{
+lua <<EOF
+  -- Setup nvim-cmp.
+  local cmp = require'cmp'
 
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+  local has_words_before = function()
+    local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+    return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
+  end
 
-" <C-f> complete snippets, tabnine suggestion is considered snippets.
-inoremap <silent><expr> <C-f> pumvisible() ? coc#_select_confirm() :
-                                           \"\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+  local feedkey = function(key, mode)
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
+  end
 
-" Use `gp` and `gn` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> gp <Plug>(coc-diagnostic-prev)
-nmap <silent> gn <Plug>(coc-diagnostic-next)
+  cmp.setup({
+    snippet = {
+      -- REQUIRED - you must specify a snippet engine
+      expand = function(args)
+      end,
+    },
+    mapping = {
+      -- TODO add snippet
 
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gr <Plug>(coc-references)
+      ['<Tab>'] = function(fallback)
+        if not cmp.select_next_item() then
+          if vim.bo.buftype ~= 'prompt' and has_words_before() then
+            cmp.complete()
+          else
+            fallback()
+          end
+        end
+      end,
 
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+      ['<S-Tab>'] = function(fallback)
+        if not cmp.select_prev_item() then
+          if vim.bo.buftype ~= 'prompt' and has_words_before() then
+            cmp.complete()
+          else
+            fallback()
+          end
+        end
+      end,
+    },
+    sources = cmp.config.sources({
+      -- tabnie ignore nvim_lsp
+      -- { name = 'nvim_lsp' },
+      { name = 'cmp_tabnine' },
+    }, {
+      { name = 'buffer' },
+    }),
+    formatting = {
+      format = function(entry, vim_item)
+          vim_item.kind = nil
+        return vim_item
+      end
+    },
+  })
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " . expand('<cword>')
-  endif
-endfunction
+  -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline('/', {
+    sources = {
+      { name = 'buffer' }
+    }
+  })
 
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
+  -- Use buffer source for `?` (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline('?', {
+    sources = {
+      { name = 'buffer' }
+    }
+  })
 
-" Map function and class text objects
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
+  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline(':', {
+    sources = cmp.config.sources({
+      { name = 'path' }
+    }, {
+      { name = 'cmdline' }
+    })
+  })
+EOF
+" }}}
 
-" Add missing imports on save
-autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')
+" tabnine {{{
+lua <<EOF
+local tabnine = require('cmp_tabnine.config')
+tabnine:setup({
+	max_lines = 1000;
+	max_num_results = 20;
+	sort = true;
+	run_on_every_keystroke = true;
+	ignored_file_types = { -- default is not to ignore
+		-- uncomment to ignore in lua:
+		-- lua = true
+	};
+})
+EOF
+" }}}
+
+" nvim-treesitter {{{
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  textobjects = {
+    select = {
+      enable = true,
+
+      -- Automatically jump forward to textobj, similar to targets.vim
+      lookahead = true,
+
+      keymaps = {
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["ac"] = "@class.outer",
+        ["ic"] = "@class.inner",
+      },
+    },
+    move = {
+      enable = true,
+      set_jumps = true, -- whether to set jumps in the jumplist
+      goto_next_start = {
+        ["]m"] = "@function.outer",
+      },
+      goto_next_end = {
+        ["]M"] = "@function.outer",
+      },
+      goto_previous_start = {
+        ["[m"] = "@function.outer",
+      },
+      goto_previous_end = {
+        ["[M"] = "@function.outer",
+      },
+    },
+  },
+}
+EOF
+" }}}
+
+" hop {{{
+lua <<EOF
+require'hop'.setup()
+EOF
+" }}}
 
 " }}}
 
@@ -290,12 +356,10 @@ nnoremap <silent> <space>r <cmd>Telescope live_grep<CR>
 nnoremap <silent> <space>b <cmd>Telescope buffers<CR>
 nnoremap <silent> <space>; <cmd>Telescope command_history<CR>
 nnoremap <silent> <space>/ <cmd>Telescope search_history<CR>
-nnoremap <silent> <space>c <cmd>Telescope commands<CR>
 nnoremap <silent> <space>h <cmd>Telescope help_tags<CR>
-nnoremap <silent> <space>q <cmd>Telescope quickfix<CR>
-nnoremap <silent> <space>l <cmd>Telescope loclist<CR>
-nnoremap <silent> <space>j <cmd>Telescope jumplist<CR>
-" coc
+" mru
+nnoremap <silent> <space>m <cmd>Telescope frecency<CR>
+" TODO builtin enter normal mode
 nnoremap <silent> <space><space> <cmd>Telescope builtin<CR>
 
 " }}}
@@ -315,8 +379,8 @@ require'nvim-treesitter.configs'.setup {
 }
 EOF
 
-set foldmethod=expr
-set foldexpr=nvim_treesitter#foldexpr()
+" set foldmethod=expr
+" set foldexpr=nvim_treesitter#foldexpr()
 " }}}
 
 " UI {{{
@@ -329,6 +393,14 @@ syntax enable
 " let g:dracula_colorterm = 0
 colorscheme nordfox
 highlight Comment gui=italic
+" }}}
+
+" Languages {{{
+" go
+" }}}
+
+" hop {{{
+nnoremap <silent> s <cmd>HopChar2<CR>
 " }}}
 
 " Others {{{
