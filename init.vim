@@ -133,6 +133,7 @@ inoremap ? ?<C-g>u
 " }}}
 
 " Plugins {{{
+" TODO migrate to packer.nvim and move to plugins.lua file
 call plug#begin('~/.vim/plugged')
 
 Plug 'junegunn/vim-easy-align'
@@ -153,16 +154,22 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-frecency.nvim'
+Plug 'AckslD/nvim-neoclip.lua'
 
 Plug 'EdenEast/nightfox.nvim'
 
 " lsp and completion
 Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
-Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
+
+Plug 'windwp/nvim-autopairs'
+
+" TODO learn org mode in the future
+" Plug 'nvim-orgmode/orgmode'
 
 Plug 'tami5/sqlite.lua'
 
@@ -176,7 +183,6 @@ xmap ga <Plug>(EasyAlign)
 " }}}
 
 " lua {{{
-" TODO put in separate lua files
 " telescope {{{
 lua << EOF
 local actions = require("telescope.actions")
@@ -189,6 +195,9 @@ require("telescope").setup({
 			},
 		},
         mappings = {
+            n = {
+                ["q"] = actions.close,
+            },
             i = {
                 ["<esc>"] = actions.close,
                 ["<c-j>"] = actions.move_selection_next,
@@ -205,7 +214,7 @@ require('telescope').load_extension('frecency')
 EOF
 " }}}
 
-" lsp {{{
+" completion {{{
 lua <<EOF
   -- Setup nvim-cmp.
   local cmp = require'cmp'
@@ -215,19 +224,38 @@ lua <<EOF
     return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
   end
 
-  local feedkey = function(key, mode)
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
-  end
-
   cmp.setup({
+    -- gopls preselect for no fucking reasons
+    preselect = cmp.PreselectMode.None,
     snippet = {
-      -- REQUIRED - you must specify a snippet engine
+      -- We recommend using *actual* snippet engine.
+      -- It's a simple implementation so it might not work in some of the cases.
       expand = function(args)
+        local line_num, col = unpack(vim.api.nvim_win_get_cursor(0))
+        local line_text = vim.api.nvim_buf_get_lines(0, line_num - 1, line_num, true)[1]
+        local indent = string.match(line_text, '^%s*')
+        local replace = vim.split(args.body, '\n', true)
+        local surround = string.match(line_text, '%S.*') or ''
+        local surround_end = surround:sub(col)
+
+        replace[1] = surround:sub(0, col - 1)..replace[1]
+        replace[#replace] = replace[#replace]..(#surround_end > 1 and ' ' or '')..surround_end
+        if indent ~= '' then
+          for i, line in ipairs(replace) do
+            replace[i] = indent..line
+          end
+        end
+
+        vim.api.nvim_buf_set_lines(0, line_num - 1, line_num, true, replace)
+        -- just use for one line snippet, put position at the end
+        vim.api.nvim_win_set_cursor(0, {line_num, col + #replace[1]})
       end,
     },
     mapping = {
-      -- TODO add snippet
-
+      ['<C-f>'] = cmp.mapping.confirm {
+        behavior = cmp.ConfirmBehavior.Insert,
+        select = true,
+      },
       ['<Tab>'] = function(fallback)
         if not cmp.select_next_item() then
           if vim.bo.buftype ~= 'prompt' and has_words_before() then
@@ -249,9 +277,7 @@ lua <<EOF
       end,
     },
     sources = cmp.config.sources({
-      -- tabnie ignore nvim_lsp
-      -- { name = 'nvim_lsp' },
-      { name = 'cmp_tabnine' },
+      { name = 'nvim_lsp' },
     }, {
       { name = 'buffer' },
     }),
@@ -285,22 +311,6 @@ lua <<EOF
       { name = 'cmdline' }
     })
   })
-EOF
-" }}}
-
-" tabnine {{{
-lua <<EOF
-local tabnine = require('cmp_tabnine.config')
-tabnine:setup({
-	max_lines = 1000;
-	max_num_results = 20;
-	sort = true;
-	run_on_every_keystroke = true;
-	ignored_file_types = { -- default is not to ignore
-		-- uncomment to ignore in lua:
-		-- lua = true
-	};
-})
 EOF
 " }}}
 
@@ -338,6 +348,15 @@ require'nvim-treesitter.configs'.setup {
       },
     },
   },
+  highlight = {
+    enable = true,
+  },
+  incremental_selection = {
+    enable = true,
+  },
+  indent = {
+    enable = true
+  },
 }
 EOF
 " }}}
@@ -345,6 +364,104 @@ EOF
 " hop {{{
 lua <<EOF
 require'hop'.setup()
+EOF
+" }}}
+
+" lspconfig {{{
+lua <<EOF
+  -- Setup lspconfig.
+  local nvim_lsp = require('lspconfig')
+  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+
+  -- Use an on_attach function to only map the following keys
+  -- after the language server attaches to the current buffer
+  local on_attach = function(client, bufnr)
+    local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+    local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+    -- Enable completion triggered by <c-x><c-o>
+    buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+    -- Mappings.
+    local opts = { noremap=true, silent=true }
+
+    -- See `:help vim.lsp.*` for documentation on any of the below functions
+    buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+    buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+    buf_set_keymap('n', 'gp', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+    buf_set_keymap('n', 'gn', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+    buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+    buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+
+    -- buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+    -- buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+    -- buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+    -- buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+    -- buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+    -- buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+    -- buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+    -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
+    -- buf_set_keymap('n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+
+  end
+
+  -- Use a loop to conveniently call 'setup' on multiple servers and
+  -- map buffer local keybindings when the language server attaches
+  local servers = { 'clangd', 'gopls' }
+  for _, lsp in ipairs(servers) do
+    nvim_lsp[lsp].setup {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      flags = {
+        debounce_text_changes = 150,
+      }
+    }
+  end
+
+  -- yaml
+  require('lspconfig').yamlls.setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
+    settings = {
+      yaml = {
+          schemas = { kubernetes = "/*.yaml" },
+      },
+    }
+  }
+EOF
+" }}}
+
+" autopair {{{
+lua <<EOF
+  require('nvim-autopairs').setup({
+    disable_filetype = { "TelescopePrompt" , "vim" },
+    -- check treesitter
+    check_ts = true,
+  })
+  -- If you want insert `(` after select function or method item
+  local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+  local cmp = require('cmp')
+  cmp.event:on( 'confirm_done', cmp_autopairs.on_confirm_done({  map_char = { tex = '' } }))
+EOF
+" }}}
+
+" neoclip {{{
+lua <<EOF
+  require('neoclip').setup({
+    enable_persistant_history = true,
+    history = 1000,
+    keys = {
+        telescope = {
+            i = {
+                -- TODO: 影响telescope默认键
+                paste = '<cr>',
+                paste_behind = '<c-t>',
+            }
+        }
+    }
+  })
 EOF
 " }}}
 
@@ -357,35 +474,22 @@ nnoremap <silent> <space>b <cmd>Telescope buffers<CR>
 nnoremap <silent> <space>; <cmd>Telescope command_history<CR>
 nnoremap <silent> <space>/ <cmd>Telescope search_history<CR>
 nnoremap <silent> <space>h <cmd>Telescope help_tags<CR>
+" vim register clipboard
+nnoremap <silent> <space>c <cmd>lua require('telescope').extensions.neoclip.default()<CR>
 " mru
 nnoremap <silent> <space>m <cmd>Telescope frecency<CR>
-" TODO builtin enter normal mode
+" TODO builtin enter normal mode K-M map <shift> to <space>
 nnoremap <silent> <space><space> <cmd>Telescope builtin<CR>
 
 " }}}
 
 " nvim-treesitter {{{
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-  highlight = {
-    enable = true,
-  },
-  incremental_selection = {
-    enable = true,
-  },
-  indent = {
-    enable = true
-  }
-}
-EOF
-
+" TODO fold make code hard to view
 " set foldmethod=expr
 " set foldexpr=nvim_treesitter#foldexpr()
 " }}}
 
 " UI {{{
-syntax enable
-
 " let g:nord_italic = 1
 " let g:nord_italic_comments = 1
 " colorscheme nord
@@ -396,7 +500,40 @@ highlight Comment gui=italic
 " }}}
 
 " Languages {{{
-" go
+" go {{{
+lua <<EOF
+  function goimports(timeout_ms)
+    local context = { only = { "source.organizeImports" } }
+    vim.validate { context = { context, "t", true } }
+
+    local params = vim.lsp.util.make_range_params()
+    params.context = context
+
+    -- See the implementation of the textDocument/codeAction callback
+    -- (lua/vim/lsp/handler.lua) for how to do this properly.
+    local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, timeout_ms)
+    if not result or next(result) == nil then return end
+    local actions = result[1].result
+    if not actions then return end
+    local action = actions[1]
+
+    -- textDocument/codeAction can return either Command[] or CodeAction[]. If it
+    -- is a CodeAction, it can have either an edit, a command or both. Edits
+    -- should be executed first.
+    if action.edit or type(action.command) == "table" then
+      if action.edit then
+        vim.lsp.util.apply_workspace_edit(action.edit)
+      end
+      if type(action.command) == "table" then
+        vim.lsp.buf.execute_command(action.command)
+      end
+    else
+      vim.lsp.buf.execute_command(action)
+    end
+  end
+EOF
+autocmd BufWritePre *.go lua goimports(1000)
+" }}}
 " }}}
 
 " hop {{{
