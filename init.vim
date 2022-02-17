@@ -173,6 +173,8 @@ Plug 'windwp/nvim-autopairs'
 
 Plug 'tami5/sqlite.lua'
 
+Plug 'wfxr/minimap.vim'
+
 call plug#end()
 
 " }}}
@@ -538,6 +540,12 @@ autocmd BufWritePre *.go lua goimports(1000)
 
 " hop {{{
 nnoremap <silent> s <cmd>HopChar2<CR>
+" }}}
+
+" minimap {{{
+let g:minimap_width                = 10
+let g:minimap_auto_start           = 1
+let g:minimap_auto_start_win_enter = 1
 " }}}
 
 " Others {{{

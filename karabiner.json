@@ -19,21 +19,21 @@
                         "description": "left_control to HYPER (SHIFT+COMMAND+OPTION+CONTROL) or ESCAPE (If Alone)",
                         "manipulators": [
                             {
-								"conditions": [
-									{
-										"type": "device_if",
-										"identifiers": [
-											{
-												"vendor_id": 1452,
-												"product_id": 832
-											},
-											{
-												"vendor_id": 1452,
-												"product_id": 34304
-											}
-										]
-									}
-								],
+                                "conditions": [
+                                    {
+                                        "identifiers": [
+                                            {
+                                                "product_id": 832,
+                                                "vendor_id": 1452
+                                            },
+                                            {
+                                                "product_id": 34304,
+                                                "vendor_id": 1452
+                                            }
+                                        ],
+                                        "type": "device_if"
+                                    }
+                                ],
                                 "from": {
                                     "key_code": "left_control",
                                     "modifiers": {
@@ -158,6 +158,31 @@
                                 "to_if_alone": [
                                     {
                                         "key_code": "spacebar"
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "ctrl-m toggle menu bar",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "m",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "control"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "f2",
+                                        "modifiers": [
+                                            "left_control",
+                                            "fn"
+                                        ]
                                     }
                                 ],
                                 "type": "basic"
