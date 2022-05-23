@@ -165,6 +165,91 @@
                         ]
                     },
                     {
+                          "description": "double left shift to notion",
+                          "manipulators": [
+                          {
+                            "type": "basic",
+                            "from": {
+                              "key_code": "left_shift",
+                              "modifiers": {
+                                "optional": [
+                                  "any"
+                                ]
+                              }
+                            },
+                            "to": [
+                              {
+                                  "key_code": "p",
+                                  "modifiers": [
+                                      "left_command"
+                                  ]
+                              }
+                            ],
+                            "conditions": [
+                              {
+                                "type": "variable_if",
+                                "name": "left_shift pressed",
+                                "value": 1
+                              },
+                              {
+                                "bundle_identifiers": [
+                                    "^notion\\.id$"
+                                ],
+                                "type": "frontmost_application_if"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "basic",
+                            "from": {
+                              "key_code": "left_shift",
+                              "modifiers": {
+                                "optional": [
+                                  "any"
+                                ]
+                              }
+                            },
+                            "to": [
+                              {
+                                "set_variable": {
+                                  "name": "left_shift pressed",
+                                  "value": 1
+                                }
+                              },
+                              {
+                                "key_code": "left_shift"
+                              }
+                            ],
+                            "to_delayed_action": {
+                              "to_if_invoked": [
+                                {
+                                  "set_variable": {
+                                    "name": "left_shift pressed",
+                                    "value": 0
+                                  }
+                                }
+                              ],
+                              "to_if_canceled": [
+                                {
+                                  "set_variable": {
+                                    "name": "left_shift pressed",
+                                    "value": 0
+                                  }
+                                }
+                              ]
+                            },
+                            "conditions": [
+                              {
+                                "bundle_identifiers": [
+                                    "^notion\\.id$"
+                                ],
+                                "type": "frontmost_application_if"
+                              }
+                            ]
+                          }
+                        ]
+                    },
+                    {
                         "description": "cmd+0 -> ctrl-q in chrome",
                         "manipulators": [
                             {
