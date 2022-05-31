@@ -282,7 +282,7 @@
                         ]
                     },
                     {
-                        "description": "airmail gg go to first message",
+                        "description": "airmail cmd-k go to first message",
                         "manipulators": [
                             {
                                 "conditions": [
