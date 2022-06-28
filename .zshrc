@@ -14,9 +14,13 @@ bindkey '^x^e' edit-command-line
 autoload -U select-word-style
 select-word-style bash
 
-export WORDCHARS='.-'
+# export WORDCHARS='.-'
 
-export EDITOR=nvim
+export EDITOR=lvim
+export LANG=en_US.UTF-8
+
+# TODO not work
+export BAT_THEME="Nord"
 
 ## Alias
 # alias ls to exa
@@ -31,17 +35,33 @@ eval "$(hub alias -s)"
 
 alias g=git
 
-alias vim=nvim
+alias vim=lvim
+alias vi=lvim
 
 ## Tools
 
 # HomeBrew
-# export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
 # TODO put in directory not relate to user
 export PATH="/Users/ruizhang/nvim-osx64/bin/:$PATH"
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:/Users/ruizhang/.local/bin
+
+# TODO asmebly
+export PATH=$PATH:/Users/ruizhang/Documents/cs/basics/asm/nasm-2.15.05/
+
+# bigdata
+export SPARK_HOME="/Users/ruizhang/bigdata/spark-3.2.1-bin-hadoop3.2"
+export PATH=$PATH:$SPARK_HOME/bin
 # HomeBrew END
+
+## fnm
+eval "$(fnm env)"
 
 ## fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -143,9 +163,6 @@ bind-git-helper() {
 bind-git-helper f b t r h s
 unset -f bind-git-helper
 
-# zsh-plugins
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-
 ## UI
 
 # starship
@@ -170,3 +187,22 @@ export QEMU=qemu-system-i386
 
 # z
 eval "$(zoxide init zsh)"
+
+source /Users/ruizhang/.config/broot/launcher/bash/br
+
+source <(kubectl completion zsh)
+eval "$(atuin init zsh)"
+
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+export JAVA_HOME=$(/usr/libexec/java_home)
+
+clear-ctrl-r() {
+  zle autosuggest-clear
+  # TODO clear autosuggestions before list history
+  zle _atuin_search_widget
+}
+
+zle -N clear-ctrl-r
+
+bindkey '^R' clear-ctrl-r
