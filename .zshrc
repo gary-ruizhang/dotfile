@@ -19,7 +19,6 @@ select-word-style bash
 export EDITOR=lvim
 export LANG=en_US.UTF-8
 
-# TODO not work
 export BAT_THEME="Nord"
 
 ## Alias
@@ -36,7 +35,7 @@ eval "$(hub alias -s)"
 alias g=git
 
 alias vim=lvim
-alias vi=lvim
+alias vi=vim
 
 ## Tools
 
@@ -206,3 +205,23 @@ clear-ctrl-r() {
 zle -N clear-ctrl-r
 
 bindkey '^R' clear-ctrl-r
+
+# ignore commands for zsh-autosuggestions plugin
+ZSH_AUTOSUGGEST_HISTORY_IGNORE="g stash*"
+
+# create tmux session
+# TODO hard code work path, needed change if workspace path changed
+tmux_work() {
+    # Use -d to allow the rest of the function to run
+    tmux new-session -d -s work -c "/Users/ruizhang/Work/workspace/ivoss_web"
+    tmux rename-window npm
+    # -d to prevent current window from changing
+    tmux new-window -d -n front -c "/Users/ruizhang/Work/workspace/ivoss_web"
+    tmux new-window -d -n back -c "/Users/ruizhang/Work/workspace/ivoss_web_service"
+    tmux new-window -d -n bss/bigdata -c "/Users/ruizhang/Work/ivoss_bigdata"
+    tmux new-window -d -n other
+    tmux new-window -d -n ssh
+    # -d to detach any other client (which there shouldn't be,
+    # since you just created the session).
+    tmux attach-session -d -t work
+}
