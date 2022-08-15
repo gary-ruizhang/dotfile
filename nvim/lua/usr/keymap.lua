@@ -26,6 +26,8 @@ keymap("n", "<C-j>", "4j", opts)
 keymap("n", "<C-k>", "4k", opts)
 keymap("n", "<C-d>", "9j", opts)
 keymap("n", "<C-u>", "9k", opts)
+-- FIXME disable recording feature
+keymap("n", "q", "", opts)
 
 -- Insert --
 -- Better movement
@@ -49,13 +51,3 @@ keymap("n", "<C-c>", "<cmd>Telescope builtin<CR>", opts)
 
 -- Hop easymotion
 keymap("n", "s", "<cmd>HopChar2<CR>", opts)
-
-pcall(
-  vim.cmd,
-  [[
-    augroup statusline
-    autocmd!
-    autocmd CmdlineEnter * redraw!
-    augroup END
-  ]]
-)
