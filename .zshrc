@@ -10,13 +10,13 @@ zle -N edit-command-line
 bindkey '^xe' edit-command-line
 bindkey '^x^e' edit-command-line
 
+# bindkey '^w' backward-kill-word
 # how zsh decide a word, useful /foo/bar ctrl-w /foo
-autoload -U select-word-style
-select-word-style bash
+# autoload -U select-word-style
+# select-word-style bash
+export WORDCHARS=
 
-# export WORDCHARS='.-'
-
-export EDITOR=lvim
+export EDITOR=nvim
 export LANG=en_US.UTF-8
 
 export BAT_THEME="Nord"
@@ -34,19 +34,14 @@ eval "$(hub alias -s)"
 
 alias g=git
 
-alias vim=lvim
-alias vi=vim
+alias vim=nvim
+alias vi=nvim
 
 ## Tools
 
 # HomeBrew
-export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
-export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
-# TODO put in directory not relate to user
-export PATH="/Users/ruizhang/nvim-osx64/bin/:$PATH"
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:/Users/ruizhang/.local/bin
@@ -71,7 +66,7 @@ export FZF_DEFAULT_COMMAND="git ls-files --cached --others --exclude-standard | 
 export FZF_CTRL_T_COMMAND="fd $FD_OPTIONS"
 export FZF_ALT_C_COMMAND="fd --type d $FD_OPTIONS"
 
-export FZF_DEFAULT_OPTS='--height 40% --border --reverse'
+export FZF_DEFAULT_OPTS='--height 60% --border --reverse'
 export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
@@ -189,7 +184,6 @@ eval "$(zoxide init zsh)"
 
 source /Users/ruizhang/.config/broot/launcher/bash/br
 
-source <(kubectl completion zsh)
 eval "$(atuin init zsh)"
 
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
