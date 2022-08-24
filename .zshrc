@@ -14,6 +14,8 @@ bindkey '^x^e' edit-command-line
 # how zsh decide a word, useful /foo/bar ctrl-w /foo
 # autoload -U select-word-style
 # select-word-style bash
+
+# only work perfectly solution 
 export WORDCHARS=
 
 export EDITOR=nvim
@@ -206,6 +208,11 @@ ZSH_AUTOSUGGEST_HISTORY_IGNORE="g stash*"
 # create tmux session
 # TODO hard code work path, needed change if workspace path changed
 tmux_work() {
+  # check if session exists, if not create one, if so attach it
+  session="work"
+  tmux has-session -t $session 2>/dev/null
+
+  if [ $? != 0 ]; then
     # Use -d to allow the rest of the function to run
     tmux new-session -d -s work -c "/Users/ruizhang/Work/workspace/ivoss_web"
     tmux rename-window npm
@@ -218,4 +225,7 @@ tmux_work() {
     # -d to detach any other client (which there shouldn't be,
     # since you just created the session).
     tmux attach-session -d -t work
+  else 
+    tmux attach-session -t $session
+  fi
 }
