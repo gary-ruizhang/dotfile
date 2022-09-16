@@ -1,7 +1,7 @@
 ## Settings
 setopt MENU_COMPLETE
 # cd tab ignore case
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' menu no matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 # Enable Ctrl-x-e to edit command line
 bindkey -e
@@ -22,11 +22,12 @@ export EDITOR=nvim
 export LANG=en_US.UTF-8
 
 export BAT_THEME="Nord"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 ## Alias
 # alias ls to exa
 alias ls=exa
-alias ll='ls -l'
+alias ll='ls -alF -snewest'
 
 # alias cat to bat
 alias cat=bat
@@ -35,7 +36,9 @@ alias cat=bat
 eval "$(hub alias -s)"
 
 alias g=git
+alias lg=lazygit
 alias k=kubectl
+alias ks='kubectl -n kube-system'
 
 alias vim=nvim
 alias vi=nvim
@@ -48,8 +51,6 @@ export PATH="/usr/local/sbin:$PATH"
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:/Users/ruizhang/.local/bin
-
-source <(kubectl completion zsh)
 
 # bigdata
 export SPARK_HOME="/Users/ruizhang/bigdata/spark-3.2.1-bin-hadoop3.2"
@@ -84,7 +85,9 @@ eval "$(starship init zsh)"
 source /Users/ruizhang/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # make zsh completion system work
-autoload -Uz compinit && compinit
+autoload -U +X compinit && compinit
+source <(kubectl completion zsh)
+
 export PATH="/usr/local/opt/binutils/bin:$PATH"
 
 export TOOLPREFIX=x86_64-elf-
@@ -98,6 +101,7 @@ source /Users/ruizhang/.config/broot/launcher/bash/br
 
 eval "$(atuin init zsh)"
 
+fpath=(/Users/ruizhang/.zsh/zsh-completions/src $fpath)
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 export JAVA_HOME=$(/usr/libexec/java_home)
@@ -139,3 +143,7 @@ tmux_work() {
     tmux attach-session -t $session
   fi
 }
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
